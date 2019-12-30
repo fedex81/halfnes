@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.prefs.Preferences;
-import javafx.scene.Scene;
 
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
@@ -41,12 +40,6 @@ public class ControllerImpl implements ControllerInterface, KeyListener {
         this(controllernum);
         //this.parent = parent;
         parent.addKeyListener(this);
-    }
-
-    public ControllerImpl(final Scene scene, final int controllernum) {
-        this(controllernum);
-        scene.addEventHandler(javafx.scene.input.KeyEvent.KEY_PRESSED, e -> pressKey(e.getCode().impl_getCode()));
-        scene.addEventHandler(javafx.scene.input.KeyEvent.KEY_RELEASED, e -> releaseKey(e.getCode().impl_getCode()));
     }
 
     public ControllerImpl(final int controllernum) {

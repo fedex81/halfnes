@@ -11,7 +11,6 @@ import com.grapeshot.halfnes.ui.ControllerInterface;
 import com.grapeshot.halfnes.ui.FrameLimiterImpl;
 import com.grapeshot.halfnes.ui.FrameLimiterInterface;
 import com.grapeshot.halfnes.ui.GUIInterface;
-import javafx.application.Platform;
 
 public class NES implements ProjectInfo {
 
@@ -24,7 +23,7 @@ public class NES implements ProjectInfo {
     private ControllerInterface controller1, controller2;
     public boolean runEmulation = false;
     private boolean dontSleep = false;
-    private boolean shutdown = false;
+    private volatile boolean shutdown = false;
     public long frameStartTime, framecount, frameDoneTime;
     private boolean frameLimiterOn = true;
     private String curRomPath, curRomName;
@@ -204,7 +203,6 @@ public class NES implements ProjectInfo {
         //System.Exit is very dirty and does NOT let the delete on exit handler
         //fire so the natives stick around...
         shutdown = true;
-        Platform.exit();
     }
 
     public synchronized void reset() {
