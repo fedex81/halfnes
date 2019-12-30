@@ -7,6 +7,8 @@ package com.grapeshot.halfnes.ui;
 import com.grapeshot.halfnes.NES;
 import com.grapeshot.halfnes.PrefsSingleton;
 
+import java.util.concurrent.locks.LockSupport;
+
 /**
  *
  * @author Andrew
@@ -20,7 +22,7 @@ public class FrameLimiterImpl implements FrameLimiterInterface {
     public FrameLimiterImpl(NES nes, long framens) {
         this.nes = nes;
         FRAME_NS = framens;
-        //forceHighResolutionTimer();
+//        forceHighResolutionTimer();
     }
 
     public void setInterval(long ns) {
@@ -35,21 +37,16 @@ public class FrameLimiterImpl implements FrameLimiterInterface {
         }
         final long timeleft = System.nanoTime() - nes.frameStartTime;
         if (timeleft < FRAME_NS) {
-            final long sleepytime = (FRAME_NS - timeleft + sleepingtest);
-            if (sleepytime < 0) {
+            final long sleepNs = (FRAME_NS - timeleft + sleepingtest);
+            if (sleepNs < 0) {
                 return;
                 //don't sleep at all.
             }
             sleepingtest = System.nanoTime();
-            try {
-                //System.err.println(sleepytime/ 1000000.);
-                Thread.sleep(sleepytime / 1000000);
-                // sleep for rest of the time until the next frame
-            } catch (InterruptedException ex) {
-            }
+            LockSupport.parkNanos(sleepNs);
             sleepingtest = System.nanoTime() - sleepingtest;
             //now sleeping test has how many ns the sleep *actually* was
-            sleepingtest = sleepytime - sleepingtest;
+            sleepingtest = sleepNs - sleepingtest;
             //now sleepingtest has how much the next frame needs to be delayed by to make things match
         }
     }
