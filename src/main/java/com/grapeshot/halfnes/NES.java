@@ -31,12 +31,19 @@ public class NES implements ProjectInfo {
     // Pro Action Replay device
     private ActionReplay actionReplay;
 
+    public NES() {
+    }
+
     public NES(GUIInterface gui) {
         if (gui != null) {
-            this.gui = gui;
-            gui.setNES(this);
+            setGui(gui);
             gui.run();
         }
+    }
+
+    public void setGui(GUIInterface gui) {
+        this.gui = gui;
+        gui.setNES(this);
     }
 
     public CPURAM getCPURAM() {

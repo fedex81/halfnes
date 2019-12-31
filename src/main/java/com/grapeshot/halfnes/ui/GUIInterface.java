@@ -28,4 +28,8 @@ public interface GUIInterface extends Runnable {
     public void render();
 
     public void loadROMs(String path);
+
+    public default void close(){
+        //do nothing
+    }
 }

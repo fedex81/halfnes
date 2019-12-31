@@ -11,6 +11,7 @@ import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.prefs.Preferences;
@@ -27,6 +28,21 @@ import net.java.games.input.EventQueue;
  * (cf. http://java.net/projects/jinput).
  */
 public class ControllerImpl implements ControllerInterface, KeyListener {
+
+    static final boolean JINPUT_ENABLE = Boolean.valueOf(System.getProperty("halfnes.jinput.enable", "true"));
+
+    private static Map<String, Integer> p1ButtonKeyCodeMap = new HashMap<>();
+
+    static {
+       p1ButtonKeyCodeMap.put("keyUp1", KeyEvent.VK_UP);
+       p1ButtonKeyCodeMap.put("keyDown1", KeyEvent.VK_DOWN);
+       p1ButtonKeyCodeMap.put("keyLeft1", KeyEvent.VK_LEFT);
+       p1ButtonKeyCodeMap.put("keyRight1", KeyEvent.VK_RIGHT);
+       p1ButtonKeyCodeMap.put("keyA1", KeyEvent.VK_Z);
+       p1ButtonKeyCodeMap.put("keyB1", KeyEvent.VK_X);
+       p1ButtonKeyCodeMap.put("keySelect1", KeyEvent.VK_SHIFT);
+       p1ButtonKeyCodeMap.put("keyStart1", KeyEvent.VK_ENTER);
+    }
 
     //private final java.awt.Component parent;
     private Controller gameController;
@@ -227,6 +243,9 @@ public class ControllerImpl implements ControllerInterface, KeyListener {
      */
     private static Controller[] getAvailablePadControllers() {
         List<Controller> gameControllers = new ArrayList<>();
+        if(!JINPUT_ENABLE){
+            return new Controller[0];
+        }
         // Get a list of the controllers JInput knows about and can interact
         // with
         Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
@@ -275,14 +294,14 @@ public class ControllerImpl implements ControllerInterface, KeyListener {
         m.clear();
         switch (controllernum) {
             case 0:
-                m.put(prefs.getInt("keyUp1", KeyEvent.VK_UP), BIT4);
-                m.put(prefs.getInt("keyDown1", KeyEvent.VK_DOWN), BIT5);
-                m.put(prefs.getInt("keyLeft1", KeyEvent.VK_LEFT), BIT6);
-                m.put(prefs.getInt("keyRight1", KeyEvent.VK_RIGHT), BIT7);
-                m.put(prefs.getInt("keyA1", KeyEvent.VK_X), BIT0);
-                m.put(prefs.getInt("keyB1", KeyEvent.VK_Z), BIT1);
-                m.put(prefs.getInt("keySelect1", KeyEvent.VK_SHIFT), BIT2);
-                m.put(prefs.getInt("keyStart1", KeyEvent.VK_ENTER), BIT3);
+                m.put(prefs.getInt("keyUp1", p1ButtonKeyCodeMap.get("keyUp1")), BIT4);
+                m.put(prefs.getInt("keyDown1", p1ButtonKeyCodeMap.get("keyDown1")), BIT5);
+                m.put(prefs.getInt("keyLeft1", p1ButtonKeyCodeMap.get("keyLeft1")), BIT6);
+                m.put(prefs.getInt("keyRight1", p1ButtonKeyCodeMap.get("keyRight1")), BIT7);
+                m.put(prefs.getInt("keyA1", p1ButtonKeyCodeMap.get("keyA1")), BIT0);
+                m.put(prefs.getInt("keyB1", p1ButtonKeyCodeMap.get("keyB1")), BIT1);
+                m.put(prefs.getInt("keySelect1", p1ButtonKeyCodeMap.get("keySelect1")), BIT2);
+                m.put(prefs.getInt("keyStart1", p1ButtonKeyCodeMap.get("keyStart1")), BIT3);
                 break;
             case 1:
             default:
@@ -297,6 +316,7 @@ public class ControllerImpl implements ControllerInterface, KeyListener {
                 break;
 
         }
+
         Controller[] controllers = getAvailablePadControllers();
         if (controllers.length > controllernum) {
             this.gameController = controllers[controllernum];
