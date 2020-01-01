@@ -74,6 +74,10 @@ public class APU {
         setParameters();
     }
 
+    public void setAudioOutInterface(AudioOutInterface ai) {
+        this.ai = ai;
+    }
+
     private static int[] initTndLookup() {
         int[] lookup = new int[203];
         for (int i = 0; i < lookup.length; ++i) {

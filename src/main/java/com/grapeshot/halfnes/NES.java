@@ -54,12 +54,23 @@ public class NES implements ProjectInfo {
         return this.cpu;
     }
 
+    public APU getApu() {
+        return apu;
+    }
+
     public void run(final String romtoload) {
         Thread.currentThread().setPriority(Thread.NORM_PRIORITY + 1);
         //set thread priority higher than the interface thread
         curRomPath = romtoload;
         gui.loadROMs(romtoload);
         run();
+    }
+
+    public void setRom(final String romtoload) {
+        Thread.currentThread().setPriority(Thread.NORM_PRIORITY + 1);
+        //set thread priority higher than the interface thread
+        curRomPath = romtoload;
+        gui.loadROMs(romtoload);
     }
 
     public void run() {

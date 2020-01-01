@@ -6,9 +6,12 @@ package com.grapeshot.halfnes.audio;
 
 import com.grapeshot.halfnes.NES;
 import com.grapeshot.halfnes.PrefsSingleton;
-import com.grapeshot.halfnes.audio.AudioOutInterface;
 import com.grapeshot.halfnes.mappers.Mapper;
-import javax.sound.sampled.*;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.SourceDataLine;
 
 /**
  *
@@ -18,9 +21,15 @@ public class SwingAudioImpl implements AudioOutInterface {
 
     private boolean soundEnable;
     private SourceDataLine sdl;
-    private byte[] audiobuf;
-    private int bufptr = 0;
-    private float outputvol;
+    private volatile byte[] audiobuf;
+    private volatile int bufptr = 0;
+    protected float outputvol;
+    protected int samplesPerFrame;
+
+    final static int CHANNELS = 1;
+    final static int SAMPLE_SIZE = 16;
+    final static int BYTES_PER_SAMPLE = SAMPLE_SIZE/8;
+
 
     public SwingAudioImpl(final NES nes, final int samplerate, Mapper.TVType tvtype) {
         soundEnable = PrefsSingleton.get().getBoolean("soundEnable", true);
@@ -37,19 +46,19 @@ public class SwingAudioImpl implements AudioOutInterface {
                 break;
         }
         if (soundEnable) {
-            final int samplesperframe = (int) Math.ceil((samplerate * 2) / fps);
-            audiobuf = new byte[samplesperframe * 2];
+            samplesPerFrame = (int) Math.ceil((samplerate * CHANNELS) / fps);
+            audiobuf = new byte[samplesPerFrame * BYTES_PER_SAMPLE];
             try {
                 AudioFormat af = new AudioFormat(
                         samplerate,
-                        16,//bit
-                        2,//channel
+                        SAMPLE_SIZE,//bit
+                        CHANNELS,//channel
                         true,//signed
                         false //little endian
                 //(works everywhere, afaict, but macs need 44100 sample rate)
                 );
                 sdl = AudioSystem.getSourceDataLine(af);
-                sdl.open(af, samplesperframe * 4 * 2 /*ch*/ * 2 /*bytes/sample*/); 
+                sdl.open(af, samplesPerFrame * 2 * CHANNELS * BYTES_PER_SAMPLE);
                 //create 4 frame audio buffer
                 sdl.start();
             } catch (LineUnavailableException a) {
@@ -65,7 +74,7 @@ public class SwingAudioImpl implements AudioOutInterface {
     }
 
     @Override
-    public final void flushFrame(final boolean waitIfBufferFull) {
+    public void flushFrame(final boolean waitIfBufferFull) {
         if (soundEnable) {
 
 //            if (sdl.available() == sdl.getBufferSize()) {
@@ -88,7 +97,7 @@ public class SwingAudioImpl implements AudioOutInterface {
     }
 
     @Override
-    public final void outputSample(int sample) {
+    public void outputSample(int sample) {
         if (soundEnable) {
             sample *= outputvol;
             if (sample < -32768) {
@@ -99,15 +108,10 @@ public class SwingAudioImpl implements AudioOutInterface {
                 sample = 32767;
                 //System.err.println("clop");
             }
-            //left ch
-            int lch = sample;
-            audiobuf[bufptr] = (byte) (lch & 0xff);
-            audiobuf[bufptr + 1] = (byte) ((lch >> 8) & 0xff);
-            //right ch
-            int rch = sample;
-            audiobuf[bufptr + 2] = (byte) (rch & 0xff);
-            audiobuf[bufptr + 3] = (byte) ((rch >> 8) & 0xff);
-            bufptr += 4;
+            //mono
+            audiobuf[bufptr] = (byte) (sample & 0xff);
+            audiobuf[bufptr + 1] = (byte) ((sample >> 8) & 0xff);
+            bufptr += 2;
         }
     }
 
