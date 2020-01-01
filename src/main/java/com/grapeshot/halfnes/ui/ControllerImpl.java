@@ -29,7 +29,7 @@ import net.java.games.input.EventQueue;
  */
 public class ControllerImpl implements ControllerInterface, KeyListener {
 
-    static final boolean JINPUT_ENABLE = Boolean.valueOf(System.getProperty("halfnes.jinput.enable", "true"));
+    public static boolean JINPUT_ENABLE = Boolean.valueOf(System.getProperty("halfnes.jinput.enable", "true"));
 
     private static Map<String, Integer> p1ButtonKeyCodeMap = new HashMap<>();
 
@@ -316,17 +316,18 @@ public class ControllerImpl implements ControllerInterface, KeyListener {
                 break;
 
         }
-
-        Controller[] controllers = getAvailablePadControllers();
-        if (controllers.length > controllernum) {
-            this.gameController = controllers[controllernum];
-            PrefsSingleton.get().put("controller" + controllernum, gameController.getName());
-            System.err.println(controllernum + 1 + ". " + gameController.getName());
-            this.buttons = getButtons(controllers[controllernum]);
-        } else {
-            PrefsSingleton.get().put("controller" + controllernum, "");
-            this.gameController = null;
-            this.buttons = null;
+        if(JINPUT_ENABLE) {
+            Controller[] controllers = getAvailablePadControllers();
+            if (controllers.length > controllernum) {
+                this.gameController = controllers[controllernum];
+                PrefsSingleton.get().put("controller" + controllernum, gameController.getName());
+                System.err.println(controllernum + 1 + ". " + gameController.getName());
+                this.buttons = getButtons(controllers[controllernum]);
+            } else {
+                PrefsSingleton.get().put("controller" + controllernum, "");
+                this.gameController = null;
+                this.buttons = null;
+            }
         }
     }
 }
