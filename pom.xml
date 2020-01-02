@@ -15,6 +15,11 @@
             <artifactId>jinput</artifactId>
             <version>2.0.9</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.12.1</version>
+        </dependency>
         <!-- Tests -->
         <dependency>
             <groupId>org.testng</groupId>
@@ -27,16 +32,6 @@
             <artifactId>mockito-core</artifactId>
             <version>1.9.5</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.12.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>28.1-jre</version>
         </dependency>
     </dependencies>
     <properties>
@@ -104,96 +99,40 @@
         </plugins>
     </build>
 
-    <!-- More Project Information -->
-    <name>halfNES</name>
-    <description>An accurate NES/Famicom emulator</description>
-    <url>https://github.com/andrew-hoffman/halfnes</url>
-    <inceptionYear>2010</inceptionYear>
-    <!--<licenses>...</licenses>-->
-    <developers>
-        <developer>
-            <id>andrew-hoffman</id>
-            <name>Andrew Hoffman</name>
-        </developer>
-    </developers>
-    <contributors>
-        <contributor>
-            <name>Klaus Hauschild</name>
-        </contributor>
-        <contributor>
-            <name>Stephen Chin</name>
-        </contributor>
-        <contributor>
-            <name>Thomas Lorblanches</name>
-        </contributor>	
-        <contributor>
-            <name>Nawrot Krzystof</name>
-        </contributor>
-    </contributors>
+<!--    &lt;!&ndash; More Project Information &ndash;&gt;-->
+<!--    <name>halfNES</name>-->
+<!--    <description>An accurate NES/Famicom emulator</description>-->
+<!--    <url>https://github.com/andrew-hoffman/halfnes</url>-->
+<!--    <inceptionYear>2010</inceptionYear>-->
+<!--    &lt;!&ndash;<licenses>...</licenses>&ndash;&gt;-->
+<!--    <developers>-->
+<!--        <developer>-->
+<!--            <id>andrew-hoffman</id>-->
+<!--            <name>Andrew Hoffman</name>-->
+<!--        </developer>-->
+<!--    </developers>-->
+<!--    <contributors>-->
+<!--        <contributor>-->
+<!--            <name>Klaus Hauschild</name>-->
+<!--        </contributor>-->
+<!--        <contributor>-->
+<!--            <name>Stephen Chin</name>-->
+<!--        </contributor>-->
+<!--        <contributor>-->
+<!--            <name>Thomas Lorblanches</name>-->
+<!--        </contributor>	-->
+<!--        <contributor>-->
+<!--            <name>Nawrot Krzystof</name>-->
+<!--        </contributor>-->
+<!--    </contributors>-->
 
-    <!-- Environment Settings -->
-    <scm>
-        <url>https://github.com/andrew-hoffman/halfnes</url>
-        <connection>scm:git:https://github.com/andrew-hoffman/halfnes.git</connection>
-        <developerConnection>scm:git:https://github.com/andrew-hoffman/halfnes.git</developerConnection>
-    </scm>
+<!--    &lt;!&ndash; Environment Settings &ndash;&gt;-->
+<!--    <scm>-->
+<!--        <url>https://github.com/andrew-hoffman/halfnes</url>-->
+<!--        <connection>scm:git:https://github.com/andrew-hoffman/halfnes.git</connection>-->
+<!--        <developerConnection>scm:git:https://github.com/andrew-hoffman/halfnes.git</developerConnection>-->
+<!--    </scm>-->
     <prerequisites>
         <maven>3.0.5</maven>
     </prerequisites>
-    <profiles>
-        <profile>
-            <id>make-binary</id>
-            <build>
-                <defaultGoal>package</defaultGoal>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <version>2.6</version>
-                        <executions>
-                            <execution>
-                                <id>make-assembly</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                                <configuration>
-                                    <descriptorRefs>
-                                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                                    </descriptorRefs>
-                                    <archive>
-                                        <manifest>
-                                            <mainClass>com.grapeshot.halfnes.halfNES</mainClass>
-                                        </manifest>
-                                    </archive>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>com.akathist.maven.plugins.launch4j</groupId>
-                        <artifactId>launch4j-maven-plugin</artifactId>
-                        <version>1.7.8</version>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>launch4j</goal>
-                                </goals>
-                                <configuration>
-                                    <headerType>gui</headerType>
-                                    <outfile>target/halfNES.exe</outfile>
-                                    <jar>target/${project.build.finalName}-jar-with-dependencies.jar</jar>
-                                    <jre>
-                                        <minVersion>1.8.0</minVersion>
-                                        <initialHeapSize>128</initialHeapSize>
-                                        <maxHeapSize>1024</maxHeapSize>
-                                    </jre>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
