@@ -7,7 +7,7 @@
     <!-- The Basics -->
     <groupId>com.grapeshot</groupId>
     <artifactId>halfnes</artifactId>
-    <version>0.6.3-SNAPSHOT</version>
+    <version>0.X.X-SNAPSHOT</version>
     <dependencies>
         <!-- Controller input -->
         <dependency>
@@ -66,24 +66,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                            <goal>test-jar</goal>
-                        </goals>
-                        <configuration>
-                            <failOnError>false</failOnError>
-                            <verbose>false</verbose>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>templating-maven-plugin</artifactId>
                 <version>1.0.0</version>
@@ -102,7 +84,7 @@
 <!--    &lt;!&ndash; More Project Information &ndash;&gt;-->
 <!--    <name>halfNES</name>-->
 <!--    <description>An accurate NES/Famicom emulator</description>-->
-<!--    <url>https://github.com/andrew-hoffman/halfnes</url>-->
+        <url>https://github.com/</url>
 <!--    <inceptionYear>2010</inceptionYear>-->
 <!--    &lt;!&ndash;<licenses>...</licenses>&ndash;&gt;-->
 <!--    <developers>-->
