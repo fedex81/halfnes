@@ -4,6 +4,7 @@
  */
 package com.grapeshot.halfnes;
 
+import com.grapeshot.halfnes.audio.AudioOutInterface;
 import com.grapeshot.halfnes.cheats.ActionReplay;
 import com.grapeshot.halfnes.mappers.BadMapperException;
 import com.grapeshot.halfnes.mappers.Mapper;
@@ -30,8 +31,10 @@ public class NES implements ProjectInfo {
     private final FrameLimiterInterface limiter = new FrameLimiterImpl(this, 16639267);
     // Pro Action Replay device
     private ActionReplay actionReplay;
+    private AudioOutInterface audioOutInterface;
 
-    public NES() {
+    public NES(AudioOutInterface audioOutInterface) {
+        this.audioOutInterface = audioOutInterface;
     }
 
     public NES(GUIInterface gui) {
@@ -122,6 +125,10 @@ public class NES implements ProjectInfo {
     public void setControllers(ControllerInterface controller1, ControllerInterface controller2) {
         this.controller1 = controller1;
         this.controller2 = controller2;
+    }
+
+    public AudioOutInterface getAudioOutInterface() {
+        return audioOutInterface;
     }
 
     public void toggleFrameLimiter() {
@@ -298,9 +305,6 @@ public class NES implements ProjectInfo {
     }
 
     public synchronized void setParameters() {
-        if (apu != null) {
-            apu.setParameters();
-        }
         if (ppu != null) {
             ppu.setParameters();
         }

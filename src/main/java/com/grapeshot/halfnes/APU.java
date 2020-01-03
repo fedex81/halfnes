@@ -7,9 +7,14 @@ package com.grapeshot.halfnes;
 import com.grapeshot.halfnes.ui.Oscilloscope;
 import com.grapeshot.halfnes.audio.*;
 import com.grapeshot.halfnes.mappers.Mapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 
 public class APU {
+
+    private static Logger LOG = LogManager.getLogger(APU.class.getSimpleName());
 
     public int samplerate;
     private final Timer[] timers = {new SquareTimer(8, 2), new SquareTimer(8, 2),
@@ -95,17 +100,24 @@ public class APU {
         return lookup;
     }
 
-    public final synchronized void setParameters() {
+    private void setupAudioInterface(){
         Mapper.TVType tvtype = cpuram.mapper.getTVType();
         soundFiltering = PrefsSingleton.get().getBoolean("soundFiltering", true);
         samplerate = PrefsSingleton.get().getInt("sampleRate", 44100);
         if (ai != null) {
             ai.destroy();
         }
-        ai = new SwingAudioImpl(nes, samplerate, tvtype);
+        ai = nes.getAudioOutInterface();
+        ai = ai == null ? new SwingAudioImpl(nes, samplerate, tvtype) : ai;
+        LOG.info("Using audio interface: {}", ai);
         if (PrefsSingleton.get().getBoolean("showScope", false)) {
             ai = new Oscilloscope(ai);
         }
+    }
+
+    public final synchronized void setParameters() {
+        Mapper.TVType tvtype = cpuram.mapper.getTVType();
+        setupAudioInterface();
         //pick the appropriate pitches and lengths for NTSC or PAL
         switch (tvtype) {
             case NTSC:
