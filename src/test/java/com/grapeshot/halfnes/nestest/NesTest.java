@@ -3,6 +3,7 @@ package com.grapeshot.halfnes.nestest;
 import com.grapeshot.halfnes.NES;
 import com.grapeshot.halfnes.mappers.BadMapperException;
 import com.grapeshot.halfnes.ui.ControllerInterface;
+import com.grapeshot.halfnes.ui.GUIInterface;
 import org.testng.annotations.Test;
 import static org.junit.Assert.assertEquals;
 
@@ -15,7 +16,7 @@ public class NesTest {
 
     @Test
     public void nesTest() throws BadMapperException {
-        NES nes = new NES(null);
+        NES nes = new NES((GUIInterface) null);
         nes.loadROM("src/test/resources/nestest/nestest.nes", 0xC000);
         nes.setControllers(mock(ControllerInterface.class), mock(ControllerInterface.class));
 
