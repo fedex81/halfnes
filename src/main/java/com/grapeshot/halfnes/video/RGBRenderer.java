@@ -27,4 +27,10 @@ public class RGBRenderer extends Renderer {
         }
         return getBufferedImage(nespixels);
     }
+
+    public void renderData(int[] nespixels, int[] bgcolors, boolean dotcrawl) {
+        for (int i = 0; i < nespixels.length; ++i) {
+            nespixels[i] = NesColors.col[(nespixels[i] & 0x1c0) >> 6][nespixels[i] & 0x3f];
+        }
+    }
 }

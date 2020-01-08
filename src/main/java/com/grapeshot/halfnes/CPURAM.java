@@ -17,7 +17,9 @@ import java.util.HashMap;
  */
 public class CPURAM {
 
-    private final int[] wram = new int[2048];
+    public static final int RAM_SIZE = 2048;
+
+    private int[] wram = new int[RAM_SIZE];
     Mapper mapper;
     public APU apu;
     PPU ppu; //need these to call their write handlers from here.
@@ -83,5 +85,13 @@ public class CPURAM {
 
     public void setPatches(HashMap<Integer, Patch> p) {
         this.patches = p;
+    }
+
+    public int[] getWram() {
+        return wram;
+    }
+
+    public void setWram(int[] wram) {
+        this.wram = wram;
     }
 }

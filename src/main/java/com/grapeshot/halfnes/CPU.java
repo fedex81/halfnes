@@ -1801,7 +1801,7 @@ public final class CPU {
                 | (carryFlag ? utils.BIT0 : 0));
     }
 
-    private void bytetoflags(final int statusbyte) {
+    public void bytetoflags(final int statusbyte) {
 
         negativeFlag = ((statusbyte & utils.BIT7) != 0);
         overflowFlag = ((statusbyte & utils.BIT6) != 0);
@@ -2084,6 +2084,34 @@ public final class CPU {
         op[0xFE] = "INC $%2$02X%1$02X,x";
         op[0xFF] = "ISC $%2$02X%1$02X,x";
         return op;
+    }
+
+    public void setS(int s) {
+        S = s & 0xff;
+    }
+
+    public void setY(int y) {
+        Y = y & 0xff;
+    }
+
+    public int getA() {
+        return A;
+    }
+
+    public int getS() {
+        return S;
+    }
+
+    public int getX() {
+        return X;
+    }
+
+    public int getY() {
+        return Y;
+    }
+
+    public int getPC() {
+        return PC;
     }
 
     //these methods are needed for NSF playing use
