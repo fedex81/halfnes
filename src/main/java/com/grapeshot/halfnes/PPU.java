@@ -4,45 +4,57 @@
  */
 package com.grapeshot.halfnes;
 
-import static com.grapeshot.halfnes.PrefsSingleton.get;
 import com.grapeshot.halfnes.mappers.Mapper;
 import com.grapeshot.halfnes.ui.DebugUI;
 import com.grapeshot.halfnes.ui.GUIInterface;
-import static com.grapeshot.halfnes.utils.reverseByte;
+
 import java.awt.image.BufferedImage;
-import static java.awt.image.BufferedImage.TYPE_INT_BGR;
 import java.util.Arrays;
-import static java.util.Arrays.fill;
+
+import static com.grapeshot.halfnes.PrefsSingleton.get;
+import static com.grapeshot.halfnes.utils.reverseByte;
+import static java.awt.image.BufferedImage.TYPE_INT_BGR;
 import static java.util.Arrays.fill;
 
 public class PPU {
 
+    private final static boolean PPUDEBUG = get().getBoolean("ntView", false);
+
     public Mapper mapper;
-    private int oamaddr, oamstart, readbuffer = 0;
-    private int loopyV = 0x0;//ppu memory pointer
-    private int loopyT = 0x0;//temp pointer
-    private int loopyX = 0;//fine x scroll
+    public int oamaddr, oamstart, readbuffer = 0;
+    public int loopyV = 0x0;//ppu memory pointer
+    public int loopyT = 0x0;//temp pointer
+    public int loopyX = 0;//fine x scroll
     public int scanline = 0;
     public int cycles = 0;
     private int framecount = 0;
     private int div = 2;
-    private final int[] OAM = new int[256], secOAM = new int[32],
-            spriteshiftregH = new int[8],
-            spriteshiftregL = new int[8], spriteXlatch = new int[8],
-            spritepals = new int[8], bitmap = new int[240 * 256];
-    private int found, bgShiftRegH, bgShiftRegL, bgAttrShiftRegH, bgAttrShiftRegL;
-    private final boolean[] spritebgflags = new boolean[8];
-    private boolean even = true, bgpattern = true, sprpattern, spritesize, nmicontrol,
+
+    private final int[] OAM = new int[256];
+
+    public boolean even = true;
+
+    private boolean bgpattern = true, sprpattern, spritesize,
             grayscale, bgClip, spriteClip, bgOn, spritesOn,
-            vblankflag, sprite0hit, spriteoverflow;
+            sprite0hit, spriteoverflow;
+
+    public boolean vblankflag, nmicontrol;
     private int emph;
     public final int[] pal;
-    private DebugUI debuggui;
     private int vraminc = 1;
-    private final static boolean PPUDEBUG = get().getBoolean("ntView", false);
-    private BufferedImage nametableView;
+    public int openbus = 0; //the last value written to the PPU
+    private int[] ppuReg = new int[8];
+
+    //rendering stuff
+    private int[] bitmap = new int[240 * 256];
+    private int[] secOAM = new int[32],
+            spriteshiftregH = new int[8],
+            spriteshiftregL = new int[8], spriteXlatch = new int[8],
+            spritepals = new int[8];
+
+    private int found, bgShiftRegH, bgShiftRegL, bgAttrShiftRegH, bgAttrShiftRegL;
+    private final boolean[] spritebgflags = new boolean[8];
     private final int[] bgcolors = new int[256];
-    private int openbus = 0; //the last value written to the PPU
     private int nextattr;
     private int linelowbits;
     private int linehighbits;
@@ -50,6 +62,9 @@ public class PPU {
     private int numscanlines;
     private int vblankline;
     private final int[] cpudivider = {3, 3, 3, 3, 3};
+
+    private DebugUI debuggui;
+    private BufferedImage nametableView;
 
     public PPU(final Mapper mapper) {
         this.pal = new int[]{0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D,
@@ -71,7 +86,14 @@ public class PPU {
         setParameters();
     }
 
-    final void setParameters() {
+    public void init(){
+        framecount = 0;
+        div = 2;
+        scanline = 0;
+        cycles = 0;
+    }
+
+    public final void setParameters() {
         //set stuff to NTSC or PAL or Dendy values
         switch (mapper.getTVType()) {
             case NTSC:
@@ -193,6 +215,9 @@ public class PPU {
 //                    + " frame " + framecount + " scanline " + scanline);
 //        }
         //debugdraw();
+        if(regnum >= 0 && regnum < 8){
+            ppuReg[regnum] = data;
+        }
         openbus = data;
         switch (regnum) {
             case 0: //PPUCONTROL (2000)
@@ -314,6 +339,18 @@ public class PPU {
             default:
                 break;
         }
+    }
+
+    public int[] getPpuReg() {
+        return ppuReg;
+    }
+
+    public int[] getOAM() {
+        return OAM;
+    }
+
+    public int[] getPalette(){
+        return pal;
     }
 
     /**

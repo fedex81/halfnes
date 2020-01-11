@@ -57,6 +57,10 @@ public class NES implements ProjectInfo {
         return this.cpu;
     }
 
+    public PPU getPpu() {
+        return ppu;
+    }
+
     public APU getApu() {
         return apu;
     }

@@ -453,6 +453,7 @@ public abstract class Mapper {
                 nt3 = pput3;
                 break;
         }
+        scrolltype = type;
     }
 
     public TVType getTVType() {
@@ -468,6 +469,29 @@ public abstract class Mapper {
             case 3: //dendy
                 return TVType.DENDY;
         }
+    }
+
+    public void setTVType(int val){
+        prefs.putInt("region", val);
+    }
+
+    public MirrorType getScrolltype() {
+        return scrolltype;
+    }
+
+    public static MirrorType getScrolltype(int val) {
+        return MirrorType.values()[val];
+    }
+
+    public int[] getPputN(int n) {
+        switch (n){
+            case 0: return pput0;
+            case 1: return pput1;
+            case 2: return pput2;
+            case 3: return pput3;
+            default: break;
+        }
+        return null;
     }
 
     public void init() {

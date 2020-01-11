@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 public final class CPU {
 
     private final CPURAM ram;
-    private int cycles; //increment to steal cycles from cpu
+    public int cycles; //increment to steal cycles from cpu
     public int clocks; //use for synchronizing with cpu
     private int A, X, Y, S; // registers
     public int PC;
@@ -28,7 +28,7 @@ public final class CPU {
     private final static boolean decimalModeEnable = false,
             idleLoopSkip = true;
     //NES 6502 is missing decimal mode, but most other 6502s have it
-    private boolean interruptDelay = false;
+    public boolean interruptDelay = false;
     private final static String[] opcodes = opcodes();
 
     //Battletoads Hack until I get around to making a truly cycle accurate CPU core.
