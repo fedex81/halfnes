@@ -4,7 +4,7 @@
  */
 package com.grapeshot.halfnes.mappers;
 
-public class UnromMapper extends Mapper {
+public class UnromMapper extends Mapper implements MapperHelper.MapperState<Integer> {
 
     private int bank = 0x0;
 
@@ -36,5 +36,15 @@ public class UnromMapper extends Mapper {
         for (int i = 0; i < 16; ++i) {
             prg_map[i] = (1024 * (i + 16 * bank)) & (prgsize - 1);
         }
+    }
+
+    @Override
+    public Integer saveState() {
+        return bank;
+    }
+
+    @Override
+    public void loadState(Integer state) {
+        bank = state;
     }
 }

@@ -395,11 +395,11 @@ public class PPU {
      * runs the emulation for one PPU clock cycle.
      */
     public final void clock() {
-
+        final boolean renderingOn = renderingOn();
         //cycle based ppu stuff will go here
         if (cycles == 1) {
             if (scanline == 0) {
-                dotcrawl = renderingOn();
+                dotcrawl = renderingOn;
             }
             if (scanline < 240) {
                 bgcolors[scanline] = pal[0];
@@ -407,37 +407,37 @@ public class PPU {
         }
         if (scanline < 240 || scanline == (numscanlines - 1)) {
             //on all rendering lines
-            if (renderingOn()
-                    && ((cycles >= 1 && cycles <= 256)
-                    || (cycles >= 321 && cycles <= 336))) {
-                //fetch background tiles, load shift registers
-                bgFetch();
-            } else if (cycles == 257 && renderingOn()) {
-                //x scroll reset
-                //horizontal bits of loopyV = loopyT
-                loopyV &= ~0x41f;
-                loopyV |= loopyT & 0x41f;
-
-            } else if (cycles > 257 && cycles <= 341) {
-                //clear the oam address from pxls 257-341 continuously
-                oamaddr = 0;
-            }
-            if ((cycles == 340) && renderingOn()) {
-                //read the same nametable byte twice
-                //this signals the MMC5 to increment the scanline counter
-                fetchNTByte();
-                fetchNTByte();
-            }
-            if (cycles == 65 && renderingOn()) {
-                oamstart = oamaddr;
-            }
-            if (cycles == 260 && renderingOn()) {
-                //evaluate sprites for NEXT scanline (as long as either background or sprites are enabled)
-                //this does in fact happen on scanline 261 but it doesn't do anything useful
-                //it's cycle 260 because that's when the first important sprite byte is read
-                //actually sprite overflow should be set by sprite eval somewhat before
-                //so this needs to be split into 2 parts, the eval and the data fetches
-                evalSprites();
+            if(renderingOn){
+                if (((cycles >= 1 && cycles <= 256)
+                        || (cycles >= 321 && cycles <= 336))) {
+                    //fetch background tiles, load shift registers
+                    bgFetch();
+                }
+                if (cycles == 257) {
+                    //x scroll reset
+                    //horizontal bits of loopyV = loopyT
+                    loopyV &= ~0x41f;
+                    loopyV |= loopyT & 0x41f;
+                } else if (cycles == 340) {
+                    //read the same nametable byte twice
+                    //this signals the MMC5 to increment the scanline counter
+                    fetchNTByte();
+                    fetchNTByte();
+                } else  if (cycles == 65) {
+                    oamstart = oamaddr;
+                } else if (cycles == 260) {
+                    //evaluate sprites for NEXT scanline (as long as either background or sprites are enabled)
+                    //this does in fact happen on scanline 261 but it doesn't do anything useful
+                    //it's cycle 260 because that's when the first important sprite byte is read
+                    //actually sprite overflow should be set by sprite eval somewhat before
+                    //so this needs to be split into 2 parts, the eval and the data fetches
+                    evalSprites();
+                }
+            } else {
+                if (cycles > 257 && cycles <= 341) {
+                    //clear the oam address from pxls 257-341 continuously
+                    oamaddr = 0;
+                }
             }
             if (scanline == (numscanlines - 1)) {
                 if (cycles == 0) {// turn off vblank, sprite 0, sprite overflow flags
@@ -453,7 +453,7 @@ public class PPU {
             //handle vblank on / off
             vblankflag = true;
         }
-        if (!renderingOn() || (scanline > 240 && scanline < (numscanlines - 1))) {
+        if (!renderingOn || (scanline > 240 && scanline < (numscanlines - 1))) {
             //HACK ALERT
             //handle the case of MMC3 mapper watching A12 toggle
             //even when read or write aren't asserted on the bus

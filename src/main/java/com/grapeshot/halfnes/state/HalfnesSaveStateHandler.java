@@ -2,7 +2,7 @@ package com.grapeshot.halfnes.state;
 
 import com.grapeshot.halfnes.*;
 import com.grapeshot.halfnes.mappers.Mapper;
-import omegadrive.util.FileLoader;
+import com.grapeshot.halfnes.mappers.MapperHelper;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -94,15 +94,7 @@ public class HalfnesSaveStateHandler {
         getInt(buf, ppu.getOAM());
         getInt(buf, ppu.getPalette());
 
-        ppu.mapper.setTVType(buf.getInt());
-        Mapper.MirrorType type = Mapper.getScrolltype(buf.getInt());
-
-        getInt(buf, ppu.mapper.getPRGRam());
-        getInt(buf, ppu.mapper.getPputN(0));
-        getInt(buf, ppu.mapper.getPputN(1));
-        getInt(buf, ppu.mapper.getPputN(2));
-        getInt(buf, ppu.mapper.getPputN(3));
-        ppu.mapper.setmirroring(type);
+        loadMapper(ppu.mapper);
 
         ppu.setParameters();
         ppu.init();
@@ -120,13 +112,40 @@ public class HalfnesSaveStateHandler {
         buf.putInt(ppu.loopyT);
         putInt(buf, ppu.getOAM());
         putInt(buf, ppu.getPalette());
-        buf.putInt(ppu.mapper.getTVType().ordinal());
-        buf.putInt(ppu.mapper.getScrolltype().ordinal());
-        putInt(buf, ppu.mapper.getPRGRam());
-        putInt(buf, ppu.mapper.getPputN(0));
-        putInt(buf, ppu.mapper.getPputN(1));
-        putInt(buf, ppu.mapper.getPputN(2));
-        putInt(buf, ppu.mapper.getPputN(3));
+        saveMapper(ppu.mapper);
+    }
+
+    private void loadMapper(Mapper mapper){
+        mapper.setTVType(buf.getInt());
+        Mapper.MirrorType type = Mapper.getScrolltype(buf.getInt());
+
+        getInt(buf, mapper.getPRGRam());
+        getInt(buf, mapper.getPputN(0));
+        getInt(buf, mapper.getPputN(1));
+        getInt(buf, mapper.getPputN(2));
+        getInt(buf, mapper.getPputN(3));
+
+        if(mapper instanceof MapperHelper.MapperState){
+            MapperHelper.MapperState<Integer> mapperState = (MapperHelper.MapperState<Integer>) mapper;
+            mapperState.loadState(buf.getInt());
+        }
+
+        mapper.setmirroring(type);
+    }
+
+    private void saveMapper(Mapper mapper){
+        buf.putInt(mapper.getTVType().ordinal());
+        buf.putInt(mapper.getScrolltype().ordinal());
+        putInt(buf, mapper.getPRGRam());
+        putInt(buf, mapper.getPputN(0));
+        putInt(buf, mapper.getPputN(1));
+        putInt(buf, mapper.getPputN(2));
+        putInt(buf, mapper.getPputN(3));
+
+        if(mapper instanceof MapperHelper.MapperState){
+            MapperHelper.MapperState<Integer> mapperState = (MapperHelper.MapperState<Integer>) mapper;
+            buf.putInt(mapperState.saveState());
+        }
     }
 
     private static void putInt(ByteBuffer buffer, int[] data){

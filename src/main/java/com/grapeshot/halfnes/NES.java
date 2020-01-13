@@ -8,6 +8,7 @@ import com.grapeshot.halfnes.audio.AudioOutInterface;
 import com.grapeshot.halfnes.cheats.ActionReplay;
 import com.grapeshot.halfnes.mappers.BadMapperException;
 import com.grapeshot.halfnes.mappers.Mapper;
+import com.grapeshot.halfnes.mappers.MapperHelper;
 import com.grapeshot.halfnes.ui.ControllerInterface;
 import com.grapeshot.halfnes.ui.FrameLimiterImpl;
 import com.grapeshot.halfnes.ui.FrameLimiterInterface;
@@ -152,7 +153,7 @@ public class NES implements ProjectInfo {
             try {
                 final ROMLoader loader = new ROMLoader(filename);
                 loader.parseHeader();
-                newmapper = Mapper.getCorrectMapper(loader);
+                newmapper = MapperHelper.getCorrectMapper(loader);
                 newmapper.setLoader(loader);
                 newmapper.loadrom();
             } catch (BadMapperException e) {
