@@ -231,12 +231,12 @@ public abstract class Mapper {
     }
 
     public void setPRGRAM(final int[] newprgram) {
-        prgram = newprgram.clone();
+        prgram = newprgram;
 
     }
 
     public int[] getPRGRam() {
-        return prgram.clone();
+        return prgram;
     }
 
     public final void setmirroring(final Mapper.MirrorType type) {
@@ -302,6 +302,18 @@ public abstract class Mapper {
 
     public static MirrorType getScrolltype(int val) {
         return MirrorType.values()[val];
+    }
+
+    public boolean hasChrRam() {
+        return haschrram;
+    }
+
+    public boolean hasPrgRam() {
+        return hasprgram;
+    }
+
+    public int[] getChr() {
+        return chr;
     }
 
     public int[] getPputN(int n) {

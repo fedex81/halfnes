@@ -207,7 +207,7 @@ public class NES implements ProjectInfo {
     private void saveSRAM(final boolean async) {
         if (mapper != null && mapper.hasSRAM() && mapper.supportsSaves()) {
             if (async) {
-                FileUtils.asyncwritetofile(mapper.getPRGRam(), FileUtils.stripExtension(curRomPath) + ".sav");
+                FileUtils.asyncwritetofile(mapper.getPRGRam().clone(), FileUtils.stripExtension(curRomPath) + ".sav");
             } else {
                 FileUtils.writetofile(mapper.getPRGRam(), FileUtils.stripExtension(curRomPath) + ".sav");
             }

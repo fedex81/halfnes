@@ -17,7 +17,7 @@ import java.util.stream.IntStream;
  */
 public class HalfnesSaveStateHandler {
 
-    private static int FILE_SIZE = 0x10_000;
+    private static int FILE_SIZE = 0x20_000;
 
     private ByteBuffer buf = ByteBuffer.allocate(FILE_SIZE);
 
@@ -81,23 +81,22 @@ public class HalfnesSaveStateHandler {
     }
 
     private void loadPpu(PPU ppu) {
-        //needs to write to trigger side-effects
-        IntStream.range(0, ppu.getPpuReg().length).forEach(i -> ppu.write(i, buf.getInt()));
+        int[] ppuReg = ppu.getPpuReg();
+        IntStream.range(0, ppuReg.length).forEach(i -> ppuReg[i] = buf.getInt());
         ppu.even = buf.getInt() != 0;
         ppu.openbus = buf.getInt();
         ppu.readbuffer = buf.getInt();
         ppu.vblankflag = buf.getInt() != 0;
-        ppu.nmicontrol = buf.getInt() != 0;
         ppu.loopyX = buf.getInt();
         ppu.loopyV = buf.getInt();
-        ppu.loopyT = buf.getInt();
+        int loopyT = buf.getInt();
         getInt(buf, ppu.getOAM());
         getInt(buf, ppu.getPalette());
-
         loadMapper(ppu.mapper);
 
         ppu.setParameters();
         ppu.init();
+        ppu.loopyT = loopyT;
     }
 
     private void savePpu(PPU ppu) {
@@ -106,7 +105,6 @@ public class HalfnesSaveStateHandler {
         buf.putInt(ppu.openbus);
         buf.putInt(ppu.readbuffer);
         buf.putInt(ppu.vblankflag ? 1 : 0);
-        buf.putInt(ppu.nmicontrol ? 1 : 0);
         buf.putInt(ppu.loopyX);
         buf.putInt(ppu.loopyV);
         buf.putInt(ppu.loopyT);
@@ -118,8 +116,12 @@ public class HalfnesSaveStateHandler {
     private void loadMapper(Mapper mapper){
         mapper.setTVType(buf.getInt());
         Mapper.MirrorType type = Mapper.getScrolltype(buf.getInt());
-
-        getInt(buf, mapper.getPRGRam());
+        if(mapper.hasPrgRam()) {
+            getInt(buf, mapper.getPRGRam());
+        }
+        if(mapper.hasChrRam()){
+            getInt(buf, mapper.getChr());
+        }
         getInt(buf, mapper.getPputN(0));
         getInt(buf, mapper.getPputN(1));
         getInt(buf, mapper.getPputN(2));
@@ -136,7 +138,12 @@ public class HalfnesSaveStateHandler {
     private void saveMapper(Mapper mapper){
         buf.putInt(mapper.getTVType().ordinal());
         buf.putInt(mapper.getScrolltype().ordinal());
-        putInt(buf, mapper.getPRGRam());
+        if(mapper.hasPrgRam()) {
+            putInt(buf, mapper.getPRGRam());
+        }
+        if(mapper.hasChrRam()){
+            putInt(buf, mapper.getChr());
+        }
         putInt(buf, mapper.getPputN(0));
         putInt(buf, mapper.getPputN(1));
         putInt(buf, mapper.getPputN(2));

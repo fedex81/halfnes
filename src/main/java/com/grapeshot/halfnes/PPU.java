@@ -91,6 +91,10 @@ public class PPU {
         div = 2;
         scanline = 0;
         cycles = 0;
+        //needs to write to trigger side-effects
+        write(0, ppuReg[0]);
+        write(1, ppuReg[1]);
+        write(2, ppuReg[2]);
     }
 
     public final void setParameters() {
