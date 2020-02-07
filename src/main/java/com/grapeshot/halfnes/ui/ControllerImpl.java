@@ -8,10 +8,7 @@ import com.grapeshot.halfnes.PrefsSingleton;
 import static com.grapeshot.halfnes.utils.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.prefs.Preferences;
@@ -31,17 +28,17 @@ public class ControllerImpl implements ControllerInterface, KeyListener {
 
     public static boolean JINPUT_ENABLE = Boolean.valueOf(System.getProperty("halfnes.jinput.enable", "true"));
 
-    private static Map<String, Integer> p1ButtonKeyCodeMap = new HashMap<>();
+    private static Map<String, String> keyMap = new HashMap<>();
 
     static {
-       p1ButtonKeyCodeMap.put("keyUp1", KeyEvent.VK_UP);
-       p1ButtonKeyCodeMap.put("keyDown1", KeyEvent.VK_DOWN);
-       p1ButtonKeyCodeMap.put("keyLeft1", KeyEvent.VK_LEFT);
-       p1ButtonKeyCodeMap.put("keyRight1", KeyEvent.VK_RIGHT);
-       p1ButtonKeyCodeMap.put("keyA1", KeyEvent.VK_Z);
-       p1ButtonKeyCodeMap.put("keyB1", KeyEvent.VK_X);
-       p1ButtonKeyCodeMap.put("keySelect1", KeyEvent.VK_SHIFT);
-       p1ButtonKeyCodeMap.put("keyStart1", KeyEvent.VK_ENTER);
+       keyMap.put("U", "keyUp");
+       keyMap.put("D","keyDown");
+       keyMap.put("L","keyLeft");
+       keyMap.put("R","keyRight");
+       keyMap.put("A","keyA");
+       keyMap.put("B","keyB");
+       keyMap.put("M","keySelect");
+       keyMap.put("S","keyStart");
     }
 
     //private final java.awt.Component parent;
@@ -52,19 +49,23 @@ public class ControllerImpl implements ControllerInterface, KeyListener {
     private final HashMap<Integer, Integer> m = new HashMap<>(10);
     private final int controllernum;
 
+    public static boolean verbose = false;
+
     public ControllerImpl(final java.awt.Component parent, final int controllernum) {
-        this(controllernum);
+        this(controllernum, Collections.emptyMap());
         //this.parent = parent;
         parent.addKeyListener(this);
     }
 
-    public ControllerImpl(final int controllernum) {
+    public ControllerImpl(final int controllernum, Map<String, Integer> pKeyMap) {
         if ((controllernum != 0) && (controllernum != 1)) {
             throw new IllegalArgumentException("controllerNum must be 0 or 1");
         }
         this.controllernum = controllernum;
+        setKeyMappings(controllernum, pKeyMap);
         setButtons();
     }
+
 
     @Override
     public void keyPressed(final KeyEvent keyEvent) {
@@ -288,20 +289,37 @@ public class ControllerImpl implements ControllerInterface, KeyListener {
         return buttons.toArray(new Component[0]);
     }
 
+
+    private void setKeyMappings(int pNum, Map<String, Integer> pKeyMap) {
+        Preferences prefs = PrefsSingleton.get();
+        String tail = "" + (pNum+1); //1-based
+        StringBuilder sb = new StringBuilder();
+        pKeyMap.entrySet().forEach(e -> {
+            String k = keyMap.getOrDefault(e.getKey(), null);
+            if( k != null){
+                prefs.putInt(k+tail, e.getValue());
+                sb.append(k + tail + "->" + KeyEvent.getKeyText(e.getValue()) + ", ");
+            }
+        });
+        if(verbose){
+            System.out.println("Setting player " + tail + " key mappings: " + sb.toString());
+        }
+    }
+
     public final void setButtons() {
         Preferences prefs = PrefsSingleton.get();
         //reset the buttons from prefs
         m.clear();
         switch (controllernum) {
             case 0:
-                m.put(prefs.getInt("keyUp1", p1ButtonKeyCodeMap.get("keyUp1")), BIT4);
-                m.put(prefs.getInt("keyDown1", p1ButtonKeyCodeMap.get("keyDown1")), BIT5);
-                m.put(prefs.getInt("keyLeft1", p1ButtonKeyCodeMap.get("keyLeft1")), BIT6);
-                m.put(prefs.getInt("keyRight1", p1ButtonKeyCodeMap.get("keyRight1")), BIT7);
-                m.put(prefs.getInt("keyA1", p1ButtonKeyCodeMap.get("keyA1")), BIT0);
-                m.put(prefs.getInt("keyB1", p1ButtonKeyCodeMap.get("keyB1")), BIT1);
-                m.put(prefs.getInt("keySelect1", p1ButtonKeyCodeMap.get("keySelect1")), BIT2);
-                m.put(prefs.getInt("keyStart1", p1ButtonKeyCodeMap.get("keyStart1")), BIT3);
+                m.put(prefs.getInt("keyUp1", KeyEvent.VK_UP), BIT4);
+                m.put(prefs.getInt("keyDown1", KeyEvent.VK_DOWN), BIT5);
+                m.put(prefs.getInt("keyLeft1", KeyEvent.VK_LEFT), BIT6);
+                m.put(prefs.getInt("keyRight1", KeyEvent.VK_RIGHT), BIT7);
+                m.put(prefs.getInt("keyA1", KeyEvent.VK_I), BIT0);
+                m.put(prefs.getInt("keyB1", KeyEvent.VK_O), BIT1);
+                m.put(prefs.getInt("keySelect1", KeyEvent.VK_L), BIT2);
+                m.put(prefs.getInt("keyStart1", KeyEvent.VK_ENTER), BIT3);
                 break;
             case 1:
             default:
@@ -309,10 +327,10 @@ public class ControllerImpl implements ControllerInterface, KeyListener {
                 m.put(prefs.getInt("keyDown2", KeyEvent.VK_S), BIT5);
                 m.put(prefs.getInt("keyLeft2", KeyEvent.VK_A), BIT6);
                 m.put(prefs.getInt("keyRight2", KeyEvent.VK_D), BIT7);
-                m.put(prefs.getInt("keyA2", KeyEvent.VK_G), BIT0);
-                m.put(prefs.getInt("keyB2", KeyEvent.VK_F), BIT1);
-                m.put(prefs.getInt("keySelect2", KeyEvent.VK_R), BIT2);
-                m.put(prefs.getInt("keyStart2", KeyEvent.VK_T), BIT3);
+                m.put(prefs.getInt("keyA2", KeyEvent.VK_C), BIT0);
+                m.put(prefs.getInt("keyB2", KeyEvent.VK_V), BIT1);
+                m.put(prefs.getInt("keySelect2", KeyEvent.VK_N), BIT2);
+                m.put(prefs.getInt("keyStart2", KeyEvent.VK_SPACE), BIT3);
                 break;
 
         }
