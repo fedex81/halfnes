@@ -51,9 +51,13 @@ public class ControllerImpl implements ControllerInterface, KeyListener {
 
     public static boolean verbose = false;
 
+    //back-compat
+    public ControllerImpl(final int controllernum) {
+        this(controllernum, Collections.emptyMap());
+    }
+
     public ControllerImpl(final java.awt.Component parent, final int controllernum) {
         this(controllernum, Collections.emptyMap());
-        //this.parent = parent;
         parent.addKeyListener(this);
     }
 

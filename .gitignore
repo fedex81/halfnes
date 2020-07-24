@@ -32,9 +32,14 @@ proguard4.7
 /*.app
 /battletoads double dragon.txt
 /justbreedbug.txt
-/.idea
+/.ideanp
+
 /*.iml
 /target
 /.settings/
 .classpath
 .project
+nes_test
+out
+privateLib
+.idea

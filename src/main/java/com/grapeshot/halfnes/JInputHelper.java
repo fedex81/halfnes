@@ -35,7 +35,8 @@ public enum JInputHelper {
             setLibraryPath(nativesDirectory);
             fixInputPluginForWindows8();
         } catch (Exception exception) {
-            throw new RuntimeException("Unable to setup native libraries.", exception);
+            System.err.println("Unable to setup native libraries.");
+            exception.printStackTrace();
         }
     }
 
