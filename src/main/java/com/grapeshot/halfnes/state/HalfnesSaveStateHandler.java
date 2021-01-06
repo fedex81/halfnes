@@ -21,25 +21,27 @@ public class HalfnesSaveStateHandler {
 
     private ByteBuffer buf = ByteBuffer.allocate(FILE_SIZE);
 
-    enum Type {SAVE, LOAD}
+    private static void putInt(ByteBuffer buffer, int[] data) {
+        Arrays.stream(data).forEach(d -> buffer.putInt(d));
+    }
 
-    public byte[] getSaveStateData(NES nes){
+    private static void getInt(ByteBuffer buffer, int[] data) {
+        IntStream.range(0, data.length).forEach(i -> data[i] = buffer.getInt());
+    }
+
+    public byte[] getSaveStateData(NES nes) {
         buf.clear();
         processState(Type.SAVE, nes);
         return buf.array();
     }
 
-    public void setSaveStateData(NES nes, byte[] data){
+    public void setSaveStateData(NES nes, byte[] data) {
         buf = ByteBuffer.wrap(data);
         processState(Type.LOAD, nes);
     }
 
-    private void processState(Type type, NES nes){
-        CPU cpu = nes.getCPU();
-        PPU ppu = nes.getPpu();
-        APU apu = nes.getApu();
-        CPURAM ram = nes.getCPURAM();
-        if(type == Type.LOAD){
+    public void processState(Type type, CPU cpu, PPU ppu, APU apu, CPURAM ram) {
+        if (type == Type.LOAD) {
             loadCpu(cpu);
             loadPpu(ppu);
             loadApu(apu);
@@ -52,7 +54,15 @@ public class HalfnesSaveStateHandler {
         }
     }
 
-    private void loadCpu(CPU cpu){
+    private void processState(Type type, NES nes) {
+        CPU cpu = nes.getCPU();
+        PPU ppu = nes.getPpu();
+        APU apu = nes.getApu();
+        CPURAM ram = nes.getCPURAM();
+        processState(type, cpu, ppu, apu, ram);
+    }
+
+    private void loadCpu(CPU cpu) {
         cpu.setRegA(buf.getInt());
         cpu.setPC(buf.getInt());
         cpu.setS(buf.getInt());
@@ -66,7 +76,7 @@ public class HalfnesSaveStateHandler {
         cpu.cycles = buf.getInt();
     }
 
-    private void saveCpu(CPU cpu){
+    private void saveCpu(CPU cpu) {
         buf.putInt(cpu.getA());
         buf.putInt(cpu.getPC());
         buf.putInt(cpu.getS());
@@ -113,13 +123,13 @@ public class HalfnesSaveStateHandler {
         saveMapper(ppu.mapper);
     }
 
-    private void loadMapper(Mapper mapper){
+    private void loadMapper(Mapper mapper) {
         mapper.setTVType(buf.getInt());
         Mapper.MirrorType type = Mapper.getScrolltype(buf.getInt());
-        if(mapper.hasPrgRam()) {
+        if (mapper.hasPrgRam()) {
             getInt(buf, mapper.getPRGRam());
         }
-        if(mapper.hasChrRam()){
+        if (mapper.hasChrRam()) {
             getInt(buf, mapper.getChr());
         }
         getInt(buf, mapper.getPputN(0));
@@ -127,7 +137,7 @@ public class HalfnesSaveStateHandler {
         getInt(buf, mapper.getPputN(2));
         getInt(buf, mapper.getPputN(3));
 
-        if(mapper instanceof MapperHelper.MapperState){
+        if (mapper instanceof MapperHelper.MapperState) {
             MapperHelper.MapperState<Integer> mapperState = (MapperHelper.MapperState<Integer>) mapper;
             mapperState.loadState(buf.getInt());
         }
@@ -135,13 +145,13 @@ public class HalfnesSaveStateHandler {
         mapper.setmirroring(type);
     }
 
-    private void saveMapper(Mapper mapper){
+    private void saveMapper(Mapper mapper) {
         buf.putInt(mapper.getTVType().ordinal());
         buf.putInt(mapper.getScrolltype().ordinal());
-        if(mapper.hasPrgRam()) {
+        if (mapper.hasPrgRam()) {
             putInt(buf, mapper.getPRGRam());
         }
-        if(mapper.hasChrRam()){
+        if (mapper.hasChrRam()) {
             putInt(buf, mapper.getChr());
         }
         putInt(buf, mapper.getPputN(0));
@@ -149,18 +159,14 @@ public class HalfnesSaveStateHandler {
         putInt(buf, mapper.getPputN(2));
         putInt(buf, mapper.getPputN(3));
 
-        if(mapper instanceof MapperHelper.MapperState){
+        if (mapper instanceof MapperHelper.MapperState) {
             MapperHelper.MapperState<Integer> mapperState = (MapperHelper.MapperState<Integer>) mapper;
             buf.putInt(mapperState.saveState());
         }
     }
 
-    private static void putInt(ByteBuffer buffer, int[] data){
-        Arrays.stream(data).forEach(d -> buffer.putInt(d));
-    }
-
-    private static void getInt(ByteBuffer buffer, int[] data){
-        IntStream.range(0, data.length).forEach(i -> data[i] = buffer.getInt());
+    public void setBuf(ByteBuffer buf) {
+        this.buf = buf;
     }
 
     private void saveRam(CPURAM ram) {
@@ -178,6 +184,8 @@ public class HalfnesSaveStateHandler {
     private void saveApu(APU cpu) {
 
     }
+
+    public enum Type {SAVE, LOAD}
 
 
 }
